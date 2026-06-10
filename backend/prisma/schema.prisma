@@ -6,9 +6,10 @@ generator client {
 }
 
 datasource db {
-  // SQLite — zero-config local database stored at prisma/dev.db.
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  // PostgreSQL (Neon) — pooled URL for the app, direct URL for migrations.
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
