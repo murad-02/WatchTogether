@@ -21,3 +21,6 @@ coverage/
 # local SQLite database
 *.db
 *.db-journal
+
+
+DEPLOYMENT.md

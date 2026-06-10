@@ -41,7 +41,7 @@ Estimated time: **30–45 minutes** the first time.
 
 ---
 
-## Step 0 — Put the code on GitHub
+## Step 0 — Put the code on GitHub ✅ DONE
 
 This project isn't a git repo yet. From the project root (`F:\WatchTogether`):
 
@@ -61,9 +61,11 @@ git push -u origin main
 
 > The `.gitignore` already excludes `node_modules`, `.env`, and `*.db`, so secrets and the local database won't be uploaded. Good.
 
+**Done — repo:** `https://github.com/murad-02/WatchTogether.git`
+
 ---
 
-## Step 1 — Create the production database (Neon, PostgreSQL)
+## Step 1 — Create the production database (Neon, PostgreSQL) ✅ DONE
 
 1. Go to **neon.tech** → create a project (pick a region near your users).
 2. Copy the **connection string**. Neon gives you two:
@@ -77,9 +79,24 @@ git push -u origin main
 
 Keep both handy — you'll paste them into Render in Step 3.
 
+> ⚠️ **Security:** the actual strings below contain a live database password and are committed to a (potentially public) repo. **Rotate the Neon password** (Neon console → *Roles* → reset) once deployment is finished, and prefer keeping secrets only in Render/Vercel env vars rather than in this file long‑term.
+
+**Done — this project's values:**
+
+- **Neon project:** `https://console.neon.tech/app/projects/dark-term-53977155`
+- **Region:** `ap-southeast-1` (Singapore) · **Database:** `neondb` · **Role:** `neondb_owner`
+- **`DATABASE_URL`** (pooled — host has `-pooler`):
+  ```
+  postgresql://neondb_owner:npg_gdX8WO3axvhe@ep-steep-wildflower-aozj0wmb-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+  ```
+- **`DIRECT_URL`** (direct — same host **without** `-pooler`, for migrations):
+  ```
+  postgresql://neondb_owner:npg_gdX8WO3axvhe@ep-steep-wildflower-aozj0wmb.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
+  ```
+
 ---
 
-## Step 2 — Switch Prisma from SQLite to PostgreSQL
+## Step 2 — Switch Prisma from SQLite to PostgreSQL ✅ DONE
 
 Edit `backend/prisma/schema.prisma`:
 
@@ -91,16 +108,17 @@ datasource db {
 }
 ```
 
-Then create the first migration **against Neon** from your machine (so the tables exist in production). Temporarily put the Neon strings in `backend/.env`:
+Then create the first migration **against Neon** from your machine (so the tables exist in production). Put the Neon strings (from Step 1) in `backend/.env` — this file is git‑ignored, so it is **not** pushed:
 
 ```env
-DATABASE_URL="<neon POOLED string>"
-DIRECT_URL="<neon DIRECT string>"
+DATABASE_URL="postgresql://neondb_owner:npg_gdX8WO3axvhe@ep-steep-wildflower-aozj0wmb-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+DIRECT_URL="postgresql://neondb_owner:npg_gdX8WO3axvhe@ep-steep-wildflower-aozj0wmb.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
 ```
 
 ```powershell
 cd backend
-npx prisma migrate dev --name init
+# Use the project's pinned Prisma (v5) — NOT bare `npx prisma`, see note below.
+node_modules/.bin/prisma migrate dev --name init
 ```
 
 This creates `backend/prisma/migrations/` and the tables in Neon. Commit it:
@@ -110,6 +128,10 @@ git add backend/prisma
 git commit -m "Switch to PostgreSQL + initial migration"
 git push
 ```
+
+> ⚠️ **Prisma version gotcha (hit on this machine):** bare `npx prisma …` downloads **Prisma 7**, which rejects `url`/`directUrl` in `schema.prisma` (`P1012` — config moved to `prisma.config.ts`). This project is pinned to **Prisma 5.22**, so run the local binary `node_modules/.bin/prisma` (or `npm run`‑wrapped scripts) instead. The same applies to Render's build command in Step 3 — `npx prisma` there resolves to the pinned v5 because it's installed as a dependency, so that's fine.
+
+**Done:** migration `20260610184334_init` applied to Neon (tables `users`, `rooms`, `participants` created); committed as `ac80ccd` and pushed to `main`.
 
 > **About local development now:** Prisma's `provider` can't be SQLite and Postgres at the same time. Two sane options:
 > - **Recommended:** use Postgres everywhere — create a *second, free* Neon database for local dev and point your local `backend/.env` at it. One database engine, zero drift.
