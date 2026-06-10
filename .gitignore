@@ -1,0 +1,23 @@
+node_modules/
+dist/
+.next/
+out/
+build/
+
+# env
+.env
+.env.local
+.env.*.local
+
+# logs
+*.log
+npm-debug.log*
+
+# misc
+.DS_Store
+coverage/
+*.tsbuildinfo
+
+# local SQLite database
+*.db
+*.db-journal

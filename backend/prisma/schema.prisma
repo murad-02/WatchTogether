@@ -1,0 +1,53 @@
+// Prisma schema for WatchTogether
+// NOTE: no video files are ever stored — only users, rooms and participants.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  // SQLite — zero-config local database stored at prisma/dev.db.
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  username     String   @unique
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  hostedRooms  Room[]        @relation("HostRooms")
+  participants Participant[]
+
+  @@map("users")
+}
+
+model Room {
+  id       String @id @default(uuid())
+  roomCode String @unique @map("room_code")
+  hostId   String @map("host_id")
+  // One of: WAITING | PLAYING | ENDED (see RoomStatus in code).
+  status    String   @default("WAITING")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  host         User          @relation("HostRooms", fields: [hostId], references: [id], onDelete: Cascade)
+  participants Participant[]
+
+  @@map("rooms")
+}
+
+model Participant {
+  id       String   @id @default(uuid())
+  roomId   String   @map("room_id")
+  userId   String   @map("user_id")
+  ready    Boolean  @default(false)
+  joinedAt DateTime @default(now()) @map("joined_at")
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([roomId, userId])
+  @@map("participants")
+}
