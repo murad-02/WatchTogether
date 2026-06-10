@@ -19,10 +19,16 @@ function buildIceServers(): RTCIceServer[] {
     { urls: 'stun:stun1.l.google.com:19302' },
   ];
 
-  const turnUrl = process.env.NEXT_PUBLIC_TURN_URL;
-  if (turnUrl) {
+  // NEXT_PUBLIC_TURN_URL may hold one URL or a comma-separated list (e.g. the
+  // ports 80/443 + TCP/TLS variants a provider gives you). All share the same
+  // credentials. Listing several lets ICE fall back through restrictive NATs.
+  const turnUrls = (process.env.NEXT_PUBLIC_TURN_URL ?? '')
+    .split(',')
+    .map((u) => u.trim())
+    .filter(Boolean);
+  if (turnUrls.length > 0) {
     servers.push({
-      urls: turnUrl,
+      urls: turnUrls,
       username: process.env.NEXT_PUBLIC_TURN_USERNAME,
       credential: process.env.NEXT_PUBLIC_TURN_CREDENTIAL,
     });
