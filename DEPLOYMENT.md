@@ -147,7 +147,7 @@ git push
    - **Runtime:** Node
    - **Build Command:** `npm install && npx prisma generate && npx prisma migrate deploy && npm run build`
    - **Start Command:** `node dist/main.js`
-3. Add **Environment Variables**:
+3. Add **Environment Variables**: 
 
    | Key | Value |
    | --- | ----- |

@@ -1,26 +1,33 @@
+# Dependencies
 node_modules/
+
+# Build outputs
 dist/
 .next/
 out/
 build/
 
-# env
+# Environment variables
 .env
 .env.local
 .env.*.local
 
-# logs
+# Logs
 *.log
 npm-debug.log*
 
-# misc
+# OS files
 .DS_Store
+
+# Coverage
 coverage/
+
+# TypeScript
 *.tsbuildinfo
 
-# local SQLite database
+# SQLite databases
 *.db
 *.db-journal
 
-
+# Documentation
 DEPLOYMENT.md
